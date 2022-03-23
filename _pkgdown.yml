@@ -1,0 +1,38 @@
+url: ~
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left:
+    - intro
+    - articles
+    - rbasics
+    - reference
+    - tutorials
+    - news
+    right:
+    - github
+  components:
+    reference:
+      text: Reference
+      href: reference/index.html
+    rbasics:
+      text: R stuff
+      href: articles/rbasics.html
+    articles:
+      text: Articles
+      menu:
+      - text: Lab 1
+        href: articles/Lab 1.html
+      - text: Lab 2 Multiple Regression I
+        href: articles/Lab 2 Multiple Regression I.html
+      - text: Lab 3 Multiple Regression II
+        href: articles/Lab 3 Multiple Regression II.html
+      - text: Lab 4 ANOVA
+        href: articles/Lab 4 ANOVA.html
+      - text: Lab 4 - ANOVA
+        href: articles/Untitled.html
+      - text: Lab 5
+        href: articles/Lab 5.html
+

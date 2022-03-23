@@ -11,7 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The example data below demonstrates that t.testing and anova can produce the same results. The p-values are the same. 
 ```{r}
-library(tibble)
+library("ggplot2")
+library("dplyr")
+library("devtools")
+library("papaja")
+library("tibble")
 example_data <- tibble(Group = rep(c("A","B"), each = 5),
                        DV = c(2,4,3,5,4,7,6,5,6,7))
 
@@ -23,7 +27,47 @@ aov.stat <- summary(aov(DV~Group, data = example_data))
 ```
 
 The F statistic is the same as the t statistic squared. 
+
 ```{r}
 ((t.stat$statistic)^2 == round(aov.stat[[1]]$'F value'[1], digits = 1))
+```
+
+
+Replication of one-factor ANOVA and report of results using papaja package.
+```{r}
+jameset.data <- read.csv("Data/Jamesetal2015Experiment2.csv")
+
+# mcrump - rstats method
+
+tibble.test <- tibble(jameset.aov)
+
+aov(Day_Zero_Number_of_Intrusions~Condition, data = tibble.test)
+
+# ksrm
+
+colnames(jameset.data) # retrieve experimental variables
+
+jameset.aov <- jameset.data %>%
+  mutate(Subjects = 1:72, .before = Condition)%>%
+  select(c(Subjects, Condition, Day_Zero_Number_of_Intrusions))
+
+jameset.means <- jameset.data %>%
+  mutate(Subjects = 1:72, .before = Condition)%>%
+  select(c(Subjects, Condition, Day_Zero_Number_of_Intrusions))%>%
+  group_by(Condition)%>%
+  summarize(Avg = mean(Day_Zero_Number_of_Intrusions), Sd = sd(Day_Zero_Number_of_Intrusions))
+
+(anova.output <- aov(Day_Zero_Number_of_Intrusions~Condition, data = jameset.aov))
+summary(anova.output)
+apa_print(anova.output)
+
+jameset.means$Condition <- as.factor(jameset.means$Condition)
+
+# use ggplot2 to graph the mean differences between conditions
+ggplot(jameset.means, aes(x = Condition, y = Avg)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = Avg - Sd,
+                    ymax = Avg + Sd),
+                width = .25) 
 ```
 

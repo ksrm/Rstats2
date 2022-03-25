@@ -36,37 +36,29 @@ The F statistic is the same as the t statistic squared.
 Replication of one-factor ANOVA and report of results using papaja package.
 ```{r}
 jameset.data <- read.csv("Data/Jamesetal2015Experiment2.csv")
-
-# mcrump - rstats method
-
-jameset.aov <- jameset.data %>%
-  mutate(Subjects = 1:72, .before = Condition)%>%
-  select(c(Subjects, Condition, Day_Zero_Number_of_Intrusions))
-tibble.test <- tibble(jameset.aov)
-
-aov(Day_Zero_Number_of_Intrusions~Condition, data = tibble.test)
-
-# ksrm
-
-colnames(jameset.data) # retrieve experimental variables
+jameset.data$Condition <- as.factor(jameset.data$Condition)
+levels(jameset.data$Condition) <- c("No-Task Control", "Reactivation Plus Tetris", "Tetris Only", "Reactivation Only")
 
 jameset.means <- jameset.data %>%
-  mutate(Subjects = 1:72, .before = Condition)%>%
+  mutate(Subjects = 1:72, .before = Condition) %>%
   select(c(Subjects, Condition, Day_Zero_Number_of_Intrusions))%>%
   group_by(Condition)%>%
-  summarize(Avg = mean(Day_Zero_Number_of_Intrusions), Sd = sd(Day_Zero_Number_of_Intrusions))
-
-(anova.output <- aov(Day_Zero_Number_of_Intrusions~Condition, data = jameset.aov))
-summary(anova.output)
-apa_print(anova.output)
-
-jameset.means$Condition <- as.factor(jameset.means$Condition)
+  summarize(means = mean(Day_Zero_Number_of_Intrusions), sd = sd(Day_Zero_Number_of_Intrusions))
 
 # use ggplot2 to graph the mean differences between conditions
-ggplot(jameset.means, aes(x = Condition, y = Avg)) +
+
+colours = c("lightblue4", "darkblue", "olivedrab4", "darkolivegreen3")
+mean.differences <- ggplot(jameset.means, aes(x = Condition, y = means, fill = Condition)) +
   geom_col() +
-  geom_errorbar(aes(ymin = Avg - Sd,
-                    ymax = Avg + Sd),
-                width = .25) 
+  scale_fill_manual(values = colours)+ 
+  geom_errorbar(aes(ymin = means - sd,
+                    ymax = means + sd),
+                width = .1) +
+  xlab("Group") 
+
+mean.differences +theme(axis.text.x = element_blank())
+
+anova_output <- aov(Day_Zero_Number_of_Intrusions~Condition, data = jameset.data)
+apa_print(anova_output)
 ```
 
